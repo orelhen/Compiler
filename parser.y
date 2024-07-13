@@ -59,8 +59,7 @@ main:  MAIN '(' ')' ':' VOID '{' func_body '}'
 functions:	function   				{$$ = $1;}
 		|	functions function		{$$ = mkNode("",2,$1,$2);}
 		;
-
-//function declaration build						
+													
 function:	var_start var_types ID '(' parameter_list ')' ':' var_static '{' func_body '}'			
 					{$$ = mkNode("FUNC", 6,mkNode($3,0),mkNode($8, 0),mkNode($1,0),mkParent("ARGS ",$5),mkParent("RETURN",mkNode($2,0)),$10);}
 
@@ -153,13 +152,13 @@ expression:	ID									{$$ = mkNode($1,0);}
 		|	expression MUL expression			{$$ = mkNode("*",2,$1,$3);}
 		|	expression DIV expression			{$$ = mkNode("/",2,$1,$3);}
 		|	op_unary expression					{$$ = mkNode($1,1,$2);}
+		|	MUL ID								{$$ = mkNode("*",1,mkNode($2,0));}
 		|	'(' expression ')'					{$$ = $2;}
 		|	'|' expression '|'					{$$ = mkNode("|",2,$2,mkNode("|",0));}
 		|	func_call							{$$ = $1;}
 		;
 		
-op_unary:	ADDRESS_OP 	
-		|	MUL 
+op_unary:	ADDRESS_OP 
 		|	NOT
 		|	MINUS
 		;
@@ -247,9 +246,9 @@ statements_ne:	statement						{$$ = $1;}
 		;
 							
 
-//variable declaration build
-variable_declaration: VAR type ':' variable_ass   ';'         {$$ = mkNode($2,1,$4);}	
-		| VAR identifiers ':' type ';'        				{$$ = mkNode($4,1,$2);}	
+							
+variable_declaration: VAR type ':' variable_ass ';'          {$$ = mkNode($2,1,$4);}	
+		| VAR type ':' identifiers ';'         				{$$ = mkNode($2,1,$4);}	
 		| STRING str_declaration     						{$$ =$2;}
 		;
 
