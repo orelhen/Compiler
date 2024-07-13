@@ -19,7 +19,9 @@ char         {return CHAR;}
 int          {return INT;}
 float		 {return FLOAT;}
 string       {return STRING;}
+double       {return DOUBLE;}
 "int*"       {return INTPTR;}
+"double*"     {return DOUBLEPTR;}
 "char*"      {return CHARPTR;}
 "float*"      {return FLOATPTR;}
 if           {return IF;}
@@ -35,7 +37,7 @@ static       {return STATIC;}
 return       {return RETURN;}
 null         {return NONE;} 
 void         {return VOID;}
-
+main         {return MAIN;}
 
 && {
     yylval.value = strdup(yytext);
@@ -93,6 +95,7 @@ void         {return VOID;}
     yylval.value = strdup(yytext);
     return PLUS;
     }
+
 \* {
     yylval.value = strdup(yytext);
     return MUL;
@@ -116,9 +119,16 @@ false {
         return STRING_VAL ;
         }
 [a-zA-Z][a-zA-Z0-9_]* {
+    if (strcasecmp(yytext, "main") == 0 || strcasecmp(yytext, "Main") == 0 || strcasecmp(yytext, "MAIN") == 0) {
+        // Handle the keyword here, such as logging or ignoring
+        // Optionally, you can return a different token or do nothing
+        // Example: fprintf(stderr, "Ignored keyword: %s\n", yytext);
+    } else {
         yylval.value = strdup(yytext);
         return ID;
-        }
+    }
+}
+
 ([1-9][0-9]*)|0 {
         yylval.value = strdup(yytext);
         return INT_VAL;
@@ -126,7 +136,11 @@ false {
 [0-9]*\.?[0-9]*([eE][+-]?[0-9]+)? {
         yylval.value = strdup(yytext);
         return FLOATPTR;
-        } 
+        }
+[0-9]*\.?[0-9]*([eE][+-]?[0-9]+)? {
+        yylval.value = strdup(yytext);
+        return DOUBLEPTR;
+        }         
 0[x|X][0-9A-F]+ {
         yylval.value = strdup(yytext);
         return HEX_VAL ;

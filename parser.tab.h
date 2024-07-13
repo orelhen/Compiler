@@ -64,43 +64,46 @@ extern int yydebug;
     FLOAT = 265,                   /* FLOAT  */
     FLOAT_VAL = 266,               /* FLOAT_VAL  */
     FLOATPTR = 267,                /* FLOATPTR  */
-    BOOLEAN = 268,                 /* BOOLEAN  */
-    TRUE = 269,                    /* TRUE  */
-    FALSE = 270,                   /* FALSE  */
-    VAR = 271,                     /* VAR  */
-    PUBLIC = 272,                  /* PUBLIC  */
-    PRIVATE = 273,                 /* PRIVATE  */
-    STATIC = 274,                  /* STATIC  */
-    RETURN = 275,                  /* RETURN  */
-    ID = 276,                      /* ID  */
-    INT_VAL = 277,                 /* INT_VAL  */
-    NONE = 278,                    /* NONE  */
-    DO = 279,                      /* DO  */
-    ARG_OP = 280,                  /* ARG_OP  */
-    AND = 281,                     /* AND  */
-    DIV = 282,                     /* DIV  */
-    EQUAL = 283,                   /* EQUAL  */
-    BIGGER_EQ = 284,               /* BIGGER_EQ  */
-    BIGGER = 285,                  /* BIGGER  */
-    SMALLER_EQ = 286,              /* SMALLER_EQ  */
-    SMALLER = 287,                 /* SMALLER  */
-    MINUS = 288,                   /* MINUS  */
-    NOT = 289,                     /* NOT  */
-    NOT_EQ = 290,                  /* NOT_EQ  */
-    OR = 291,                      /* OR  */
-    PLUS = 292,                    /* PLUS  */
-    MUL = 293,                     /* MUL  */
-    ADDRESS_OP = 294,              /* ADDRESS_OP  */
-    DEREFERENCE = 295,             /* DEREFERENCE  */
-    HEX_VAL = 296,                 /* HEX_VAL  */
-    STRING_VAL = 297,              /* STRING_VAL  */
-    IF = 298,                      /* IF  */
-    ELSE = 299,                    /* ELSE  */
-    STRING = 300,                  /* STRING  */
-    FOR = 301,                     /* FOR  */
-    INCREM = 302,                  /* INCREM  */
-    DECREM = 303,                  /* DECREM  */
-    WHILE = 304                    /* WHILE  */
+    DOUBLE = 268,                  /* DOUBLE  */
+    DOUBLE_VAL = 269,              /* DOUBLE_VAL  */
+    DOUBLEPTR = 270,               /* DOUBLEPTR  */
+    BOOLEAN = 271,                 /* BOOLEAN  */
+    TRUE = 272,                    /* TRUE  */
+    FALSE = 273,                   /* FALSE  */
+    VAR = 274,                     /* VAR  */
+    PUBLIC = 275,                  /* PUBLIC  */
+    PRIVATE = 276,                 /* PRIVATE  */
+    STATIC = 277,                  /* STATIC  */
+    RETURN = 278,                  /* RETURN  */
+    ID = 279,                      /* ID  */
+    INT_VAL = 280,                 /* INT_VAL  */
+    NONE = 281,                    /* NONE  */
+    DO = 282,                      /* DO  */
+    ARG_OP = 283,                  /* ARG_OP  */
+    AND = 284,                     /* AND  */
+    DIV = 285,                     /* DIV  */
+    EQUAL = 286,                   /* EQUAL  */
+    BIGGER_EQ = 287,               /* BIGGER_EQ  */
+    BIGGER = 288,                  /* BIGGER  */
+    SMALLER_EQ = 289,              /* SMALLER_EQ  */
+    SMALLER = 290,                 /* SMALLER  */
+    MINUS = 291,                   /* MINUS  */
+    NOT = 292,                     /* NOT  */
+    NOT_EQ = 293,                  /* NOT_EQ  */
+    OR = 294,                      /* OR  */
+    PLUS = 295,                    /* PLUS  */
+    MUL = 296,                     /* MUL  */
+    ADDRESS_OP = 297,              /* ADDRESS_OP  */
+    DEREFERENCE = 298,             /* DEREFERENCE  */
+    HEX_VAL = 299,                 /* HEX_VAL  */
+    STRING_VAL = 300,              /* STRING_VAL  */
+    IF = 301,                      /* IF  */
+    ELSE = 302,                    /* ELSE  */
+    STRING = 303,                  /* STRING  */
+    FOR = 304,                     /* FOR  */
+    INCREM = 305,                  /* INCREM  */
+    DECREM = 306,                  /* DECREM  */
+    WHILE = 307                    /* WHILE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -109,12 +112,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 22 "parser.y"
+#line 50 "parser.y"
 
-	char *value;
-	node *nPtr;
+		char *value;
+		node *nPtr;
+	
 
-#line 118 "parser.tab.h"
+#line 122 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
