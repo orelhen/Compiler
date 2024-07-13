@@ -27,24 +27,25 @@
 	node* mkNode(char *value, int count,...);
 	node* mkParent(char* value, node* child);
 	void printTree(node* ast, int indent, int s, int l);
+
 	SymbolTable* initializeSymbolTable();
-	void addToSymbolTable(SymbolTable *table, const char *name);
+	int addToSymbolTable(SymbolTable *table, const char *name);
+	int addToSymbolTableStatic(SymbolTable *table, const char *name);
+
 	int lookupInSymbolTable(SymbolTable *table, const char *name);
 	int functionCall(SymbolTable *table, const char *name);
 
-	// Function to initialize the variable list
 	VariableList* initialize_variable_list();
-
-	// Function to add a variable to the list
 	void add_variable(VariableList *list, const char *name, const char **type);
 	void add_variable_2(VariableList *list, const char *name, const char *type);
+	void add_variable_3(VariableList *list, const char **name, const char *type);
 
-	// Function to check variable type consistency
 	int check_variable_type(VariableList *list, const char *name, const char **type);
 	int check_variable_type_2(VariableList *list, const char **name, const char **type);
+	int check_variable_type_3(VariableList *list, const char **name, const char *type);
 
-	// Function to free the variable list
 	void free_variable_list(VariableList *list);
+
 	%}
 
 	%union {
@@ -97,23 +98,36 @@
 														
 	function: var_start var_types ID '(' parameter_list ')' ':' var_static '{' func_body_static '}'
 			{
-				addToSymbolTableStatic(symTable, $3); // Add function to symbol table
-				$$ = mkNode("FUNC", 6, mkNode($3, 0), mkNode($8, 0), mkNode($1, 0), mkParent("ARGS ", $5), mkParent("RETURN", mkNode($2, 0)), $10);
+				if(addToSymbolTableStatic(symTable, $3)==1){
+					$$ = mkNode("FUNC", 6, mkNode($3, 0), mkNode($8, 0), mkNode($1, 0), mkParent("ARGS ", $5), mkParent("RETURN", mkNode($2, 0)), $10);
+				}else{
+					YYABORT;
+				} 
 			}
 			| var_start var_types ID '(' ')' ':' var_static '{' func_body_static '}'
 			{
-				addToSymbolTableStatic(symTable, $3); // Add function to symbol table
-				$$ = mkNode("FUNC", 7, mkNode($3, 0), mkNode($7, 0), mkNode($1, 0), mkParent("ARGS", mkNode("NONE", 0)), mkParent("RETURN", mkNode($2, 0)), $9);
+				if(addToSymbolTableStatic(symTable, $3)==1){
+					$$ = mkNode("FUNC", 7, mkNode($3, 0), mkNode($7, 0), mkNode($1, 0), mkParent("ARGS", mkNode("NONE", 0)), mkParent("RETURN", mkNode($2, 0)), $9);
+				}else{
+					YYABORT;
+				}
 			}
 			| var_start var_types ID '(' parameter_list ')''{' func_body '}'
 			{
-				addToSymbolTable(symTable, $3); // Add function to symbol table
-				$$ = mkNode("FUNC", 6, mkNode($3, 0), mkNode("NONSTATIC", 0), mkNode($1, 0), mkParent("ARGS ", $5), mkParent("RETURN", mkNode($2, 0)), $8);
+				if(addToSymbolTable(symTable, $3)==1){
+					$$ = mkNode("FUNC", 6, mkNode($3, 0), mkNode("NONSTATIC", 0), mkNode($1, 0), mkParent("ARGS ", $5), mkParent("RETURN", mkNode($2, 0)), $8);	
+				}else{
+					YYABORT;
+				}
+				
 			}
 			| var_start var_types ID '(' ')' '{' func_body '}'
 			{
-				addToSymbolTable(symTable, $3); // Add function to symbol table
-				$$ = mkNode("FUNC", 7, mkNode($3, 0), mkNode("NONSTATIC", 0), mkNode($1, 0), mkParent("ARGS", mkNode("NONE", 0)), mkParent("RETURN", mkNode($2, 0)), $7);
+				if(addToSymbolTable(symTable, $3)==1){
+					$$ = mkNode("FUNC", 7, mkNode($3, 0), mkNode("NONSTATIC", 0), mkNode($1, 0), mkParent("ARGS", mkNode("NONE", 0)), mkParent("RETURN", mkNode($2, 0)), $7);
+				}else{
+					YYABORT;
+				}
 			};
 
 
@@ -169,9 +183,9 @@
 			;
 
 
-	const_value: CHAR_VAL   {$$ = mkNode("CHAR",1,mkNode($1,0));}
+	const_value: CHAR_VAL   {$$ = mkNode($1,0);}
 			|	 HEX_VAL    {$$ = mkNode($1,0);}
-			|	 INT_VAL	{$$ = mkNode("INT",1,mkNode($1,0));}
+			|	 INT_VAL	{$$ = mkNode($1,0);}
 			|	 FLOAT_VAL	{$$ = mkNode($1,0);}
 			|	 DOUBLE_VAL	{$$ = mkNode($1,0);}
 			| PLUS DOUBLE_VAL { $$ = mkNode("+",1,mkNode($2,0));}
@@ -284,7 +298,22 @@
 				}
 			
 		}
-			|	lhs '=' STRING_VAL 		{$$ = mkNode("ASS6",2,$1,mkNode($3,0));}
+			|	lhs '=' STRING_VAL 		
+			{
+				
+				if(check_variable_type_3(var_list, $1,$3) == 1){
+					$$ = mkNode("ASS6",2,$1,mkNode($3,0));
+
+				}
+				else if (check_variable_type_3(var_list, $1,$3) == -1){
+					printf("Sorry wrong assignment type\n");
+					YYABORT; 
+				}
+				else {
+					$$ = mkNode("ASS6",2,$1,mkNode($3,0));
+
+				}
+			}
 			;	
 
 	lhs:	ID									{$$ = mkNode($1,0);}
@@ -466,8 +495,14 @@
 			;
 								
 	variable_declaration: VAR type ':' variable_ass ';'          {$$ = mkNode($2,1,$4);}
-			| VAR type ':' ID ';'          {add_variable(var_list,$4,$2);$$ = mkNode($2,1,$4);}	
-			| VAR type ':' identifiers ';'         				{add_variable(var_list,$4,$2);$$ = mkNode($2,1,$4);}	
+		
+			| VAR type ':' identifiers ';'         				
+			{
+			
+				
+				add_variable_3(var_list,$4,$2);
+				$$ = mkNode($2,1,$4);
+			}	
 			| STRING str_declaration     						{$$ =$2;}
 			;
 
@@ -493,6 +528,7 @@
 								
 	variable_ass: ID '=' const_value ',' variable_ass	
 			{
+				
 				if(check_variable_type(var_list, $1,$3) == 1) {
 					$$ = mkNode("ASS1",3,mkNode($1,1,$3), mkParent("",$5));
 
@@ -681,7 +717,7 @@
 		return table;
 	}
 
-	void addToSymbolTable(SymbolTable *table, const char *name) {
+	int addToSymbolTable(SymbolTable *table, const char *name) {
 
 		if (table->count < MAX_SYMBOLS) {
 			// Check if the function is already declared
@@ -689,16 +725,18 @@
 				// Add the function to the symbol table
 				strcpy(table->entries[table->count].name, name);
 				table->count++;
-
+				return 1;
 
 			} else {
 				printf("Error: Function '%s' already declared.\n", name);
+				return -1;
 			}
 		} else {
 			printf("Error: Symbol table overflow.\n");
+			return -1;
 		}
 	}
-	void addToSymbolTableStatic(SymbolTable *table, const char *name) {
+	int addToSymbolTableStatic(SymbolTable *table, const char *name) {
 
 		if (table->count < MAX_SYMBOLS) {
 			// Check if the function is already declared
@@ -707,13 +745,16 @@
 				strcpy(table->entries[table->count].name, name);
 				table->entries[table->count].isStatic = 1;
 				table->count++;
+				return 1;
 
 
 			} else {
 				printf("Error: Function '%s' already declared.\n", name);
+				return -1;	
 			}
 		} else {
 			printf("Error: Symbol table overflow.\n");
+			return -1;
 		}
 	}
 	int lookupInSymbolTable(SymbolTable *table, const char *name) {
@@ -783,7 +824,6 @@
 			fprintf(stderr, "Variable list is full\n");
 			return;
 		}
-		printf("type is %s \n",*type);
 		strcpy(list->entries[list->count].name, name);
 		strcpy(list->entries[list->count].type, *type);
 
@@ -802,11 +842,25 @@
 		list->count++;
 	}	
 
+	void add_variable_3(VariableList *list, const char **name, const char *type) {
+		if (list->count >= MAX_VARIABLES) {
+			fprintf(stderr, "Variable list is full\n");
+			return;
+		}
+		
+
+		strcpy(list->entries[list->count].name, *name);
+		strcpy(list->entries[list->count].type, type);
+
+		list->count++;
+	}			
 
 	int check_variable_type(VariableList *list, const char *name, const char **type) {
+		printf("1 type is %s\n",*type);
+
 		for (int i = 0; i < list->count; i++) {
 			if (strcmp(list->entries[i].name, name) == 0) {
-				if(list->entries[i].type == *type){
+				if(strcmp(list->entries[i].type, *type) == 0){
 					return 1;
 				}
 				else{
@@ -814,17 +868,21 @@
 				}
 				
 			}
+
 		}
 	
 		return 0; // If variable is not found, return true to allow new declaration
 	}
 
 	int check_variable_type_2(VariableList *list, const char **name, const char **type) {
+		if(strlen(*type) == 3){
+			*type = "CHAR";
+		}
+		printf("2 type is %s\n",*type);
 		for (int i = 0; i < list->count; i++) {
 			if (strcmp(list->entries[i].name, *name) == 0) {
-				printf("first is %s\n",*type);
-				printf("second is %s\n",list->entries[i].type);
-
+				
+				
 				if(strcmp(list->entries[i].type, *type) == 0){
 
 					return 1;
@@ -835,9 +893,37 @@
 				}
 				
 			}
+
 		}
 	
-		return 0; // If variable is not found, return true to allow new declaration
+		return 0; 
+	}
+
+	int check_variable_type_3(VariableList *list, const char **name, const char *type) {
+		if(strlen(type) == 3){
+			type = "CHAR";
+		}
+		else{
+			type = "STRING";
+		}
+		for (int i = 0; i < list->count; i++) {
+			if (strcmp(list->entries[i].name, *name) == 0) {
+				
+				
+				if(strcmp(list->entries[i].type, type) == 0){
+
+					return 1;
+				}
+				else{
+
+					return -1;
+				}
+				
+			}
+
+		}
+	
+		return 0; 
 	}
 
 	int main(void) {

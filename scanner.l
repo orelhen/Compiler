@@ -120,9 +120,7 @@ false {
         }
 [a-zA-Z][a-zA-Z0-9_]* {
     if (strcasecmp(yytext, "main") == 0 || strcasecmp(yytext, "Main") == 0 || strcasecmp(yytext, "MAIN") == 0) {
-        // Handle the keyword here, such as logging or ignoring
-        // Optionally, you can return a different token or do nothing
-        // Example: fprintf(stderr, "Ignored keyword: %s\n", yytext);
+        
     } else {
         yylval.value = strdup(yytext);
         return ID;

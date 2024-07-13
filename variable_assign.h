@@ -5,18 +5,18 @@
 #include <string.h>
 #include <stdio.h>
 
-typedef struct
-{
+
+typedef struct {
     char name[100];
     char type[40];
 } Variable;
 
 #define MAX_VARIABLES 100
 
-typedef struct
-{
+typedef struct {
     Variable entries[MAX_VARIABLES];
     int count;
 } VariableList;
+
 
 #endif // VARIABLES_ASSIGN_H
