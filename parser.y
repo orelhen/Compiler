@@ -739,7 +739,7 @@
 	int addToSymbolTableStatic(SymbolTable *table, const char *name) {
 
 		if (table->count < MAX_SYMBOLS) {
-			// Check if the function is already declared
+			// Check if the static function is already declared
 			if (lookupInSymbolTable(table, name) == -1) {
 				// Add the function to the symbol table
 				strcpy(table->entries[table->count].name, name);
